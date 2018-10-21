@@ -173,7 +173,8 @@ $(window).on('load', function(){
 
 	    pickList.objects.forEach(function(o){
 	    	if (o.parentLayer != null && o.parentLayer.displayName =='countries') {
-    			
+    			$('.well').fadeIn();
+    			$('.impact').addClass('navbar-toggled');
 	    	}
 	    });
 	};
@@ -202,7 +203,7 @@ $(window).on('load', function(){
 	wwd.addLayer(permafrost_layer);
 	// USA Layer
 	var countries_layer = new WorldWind.RenderableLayer('countries');
-	countries_layer.enabled = false;
+	countries_layer.enabled = true;
 	var countriesGeoJSON = new WorldWind.GeoJSONParser('../data/usa_poly.json');
 	countriesGeoJSON.load(parserCompletionCallback, shapeConfigurationCallback, countries_layer);
 	wwd.addLayer(countries_layer);
