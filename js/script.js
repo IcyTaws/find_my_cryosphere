@@ -9,6 +9,17 @@ $(function(){
 		e.preventDefault();
 		closeNav($(this));
 	});
+	$('.impact').on('click', function(e){
+		e.preventDefault();
+		if ($(this).hasClass('navbar-toggled')) {
+			$('.well').fadeOut();
+			$(this).removeClass('navbar-toggled');
+			
+		} else {
+			$('.well').fadeIn();
+			$(this).addClass('navbar-toggled');
+		}
+	});
 	$('.location').on('click', function(e){
 		e.preventDefault();
 		if ($(this).hasClass('navbar-toggled')) {
@@ -100,7 +111,7 @@ $(function(){
 	    }
 	});
 	$('#month-control').on('change', function(){
-		if ($(this).val() == 'Jan') {
+		/*if ($(this).val() == 'Jan') {
 			wwd.layers.forEach(function(layer){
 				if (layer.displayName == 'snow_Jan') {
 					layer.enabled = false;
@@ -120,6 +131,17 @@ $(function(){
 				}
 				wwd.redraw();
 			});
+		}*/
+		if ($(this).val() == 'Jan') {
+			console.log($(this).val());
+			$('.well1 ul').html('<li>Mota</li><li>Striper</li>');
+			$('.well2 ul').html('<li>Papa</li>');
+		} else if($(this).val() == 'Feb') {
+			$('.well1 ul').html('<li>Mota</li><li>Striper</li><li>Lubina</li>');
+			$('.well2 ul').html('<li>Papa</li>');
+		} else if($(this).val() == 'Mar') {
+			$('.well1 ul').html('<li>Mota</li>');
+			$('.well2 ul').html('<li>Papa</li><li>Alcachofa</li>');
 		}
 	});
 });
