@@ -176,10 +176,11 @@ $(window).on('load', function(){
 	var permafrost_layer = new WorldWind.RenderableLayer('permafrost');
 	permafrost_layer.enabled = false;
 	var permafrostGeoJSON = new WorldWind.GeoJSONParser('../data/permafrost_all.geojson');
-	permafrostGeoJSON.load(null, shapeConfigurationCallback, permafrost_layer);
+	permafrostGeoJSON.load(null, permafrost_layerCallback, permafrost_layer);
 	wwd.addLayer(permafrost_layer);
 	// USA Layer
 	var countries_layer = new WorldWind.RenderableLayer('countries');
+	countries_layer.enabled = false;
 	var countriesGeoJSON = new WorldWind.GeoJSONParser('../data/usa_poly.json');
 	countriesGeoJSON.load(parserCompletionCallback, shapeConfigurationCallback, countries_layer);
 	wwd.addLayer(countries_layer);
@@ -228,6 +229,25 @@ function set_current_location () {
 		// Browser doesn't support Geolocation
 		handleLocationError(false, infoWindow, map.getCenter());
 	}
+}
+
+permafrost_layerCallback = function (geometry,properties){
+	var configuration = {};
+	configuration.attributes = new WorldWind.ShapeAttributes(null);
+
+	// Fill the polygon with a custom color
+	configuration.attributes.interiorColor = new WorldWind.Color(
+		218/255, 
+		237/255,
+		254/255,
+		0.8);
+	// Paint the outline in a darker variant of the interior color.
+	configuration.attributes.outlineColor = new WorldWind.Color(
+		0.5 * configuration.attributes.interiorColor.red,
+		0.5 * configuration.attributes.interiorColor.green,
+		0.5 * configuration.attributes.interiorColor.blue,
+		1.0);
+	return configuration;
 }
 
 snow_layerConfCallback_jan = function (geometry,properties){
