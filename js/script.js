@@ -89,6 +89,30 @@ $(window).on('load', function(){
 	wwd.addLayer(new WorldWind.ViewControlsLayer(wwd));
 	set_current_location();
 
+	// Tell the WorldWindow that we want deep picking.
+	wwd.deepPicking = true;
+	// The common pick-handling function.
+	var handlePick = function (o) {
+	    // The input argument is either an Event or a TapRecognizer. Both have the same properties for determining
+	    // the mouse or tap location.
+	    var x = o.clientX,
+	        y = o.clientY;
+
+	    // Perform the pick. Must first convert from window coordinates to canvas coordinates, which are
+	    // relative to the upper left corner of the canvas rather than the upper left corner of the page.
+	    var pickList = wwd.pick(wwd.canvasCoordinates(x, y));
+
+	    console.log(pickList.objects);
+
+	    pickList.objects.forEach(function(o){
+	    	if (o.parentLayer != null && o.parentLayer.displayName =='countries') {
+    			
+	    	}
+	    });
+	};
+	// Listen for mouse moves and highlight the placemarks that the cursor rolls over.
+	wwd.addEventListener("mousemove", handlePick);
+
 	// GEOJSON TEST
 	var placemarkAttributes = new WorldWind.PlacemarkAttributes(null);
 	placemarkAttributes.imageScale = 0.05;
@@ -109,6 +133,11 @@ $(window).on('load', function(){
 	var permafrostGeoJSON = new WorldWind.GeoJSONParser('../data/permafrost_all.geojson');
 	permafrostGeoJSON.load(null, shapeConfigurationCallback, permafrost_layer);
 	wwd.addLayer(permafrost_layer);
+	// USA Layer
+	var countries_layer = new WorldWind.RenderableLayer('countries');
+	var countriesGeoJSON = new WorldWind.GeoJSONParser('../data/usa_poly.json');
+	countriesGeoJSON.load(parserCompletionCallback, shapeConfigurationCallback, countries_layer);
+	wwd.addLayer(countries_layer);
 });
 function set_current_location () {
 	if (navigator.geolocation) {
@@ -189,6 +218,7 @@ shapeConfigurationCallback = function (geometry, properties) {
 };
 
 parserCompletionCallback = function (layer) {
-    wwd.addLayer(layer);
-    layerManager.synchronizeLayerList();
+	console.log(layer);
+    // wwd.addLayer(layer);
+    // layerManager.synchronizeLayerList();
 };
