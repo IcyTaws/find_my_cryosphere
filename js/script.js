@@ -1,3 +1,5 @@
+
+
 $(function(){
 	$('.open-sidebar').on('click', function(e){
 		e.preventDefault();
@@ -109,6 +111,12 @@ $(window).on('load', function(){
 	var permafrostGeoJSON = new WorldWind.GeoJSONParser('../data/permafrost_all.geojson');
 	permafrostGeoJSON.load(null, shapeConfigurationCallback, permafrost_layer);
 	wwd.addLayer(permafrost_layer);
+	// SnowCover Layer
+	var snow_layer = new WorldWind.RenderableLayer('Nieve');
+	snow_layer.enabled = true;
+	var snow_layerGeoJSON = new WorldWind.GeoJSONParser('../data/Merged.geojson');
+	snow_layerGeoJSON.load(null, snow_layerConfCallback,snow_layer);
+	wwd.addLayer(snow_layer);
 });
 function set_current_location () {
 	if (navigator.geolocation) {
@@ -144,6 +152,26 @@ function set_current_location () {
 		handleLocationError(false, infoWindow, map.getCenter());
 	}
 }
+
+snow_layerConfCallback = function (geometry,properties){
+	var configuration = {}
+	configuration.attributes = new WorldWind.ShapeAttributes(null);
+	var mm_snow = properties.resumen_data_Jan
+	configuration.attributes.interiorColor = new WorldWind.Color(
+		1, // Red
+		1, // Green
+		1, // Blue
+		mm_snow/255)
+        
+    // Paint the outline in a darker variant of the interior color.
+	configuration.attributes.outlineColor = new WorldWind.Color(
+    0.5 * configuration.attributes.interiorColor.red,
+    0.5 * configuration.attributes.interiorColor.green,
+    0.5 * configuration.attributes.interiorColor.blue,
+    1.0);
+    return configuration;
+}
+
 shapeConfigurationCallback = function (geometry, properties) {
     var configuration = {};
 
@@ -170,19 +198,22 @@ shapeConfigurationCallback = function (geometry, properties) {
     }
     else if (geometry.isPolygonType() || geometry.isMultiPolygonType()) {
         configuration.attributes = new WorldWind.ShapeAttributes(null);
-
         // Fill the polygon with a random pastel color.
-        configuration.attributes.interiorColor = new WorldWind.Color(
+        
+    	configuration.attributes.interiorColor = new WorldWind.Color(
             0.375 + 0.5 * Math.random(),
             0.375 + 0.5 * Math.random(),
             0.375 + 0.5 * Math.random(),
             0.5);
+        
         // Paint the outline in a darker variant of the interior color.
-        configuration.attributes.outlineColor = new WorldWind.Color(
-            0.5 * configuration.attributes.interiorColor.red,
-            0.5 * configuration.attributes.interiorColor.green,
-            0.5 * configuration.attributes.interiorColor.blue,
-            1.0);
+    	configuration.attributes.outlineColor = new WorldWind.Color(
+    	    0.5 * configuration.attributes.interiorColor.red,
+       		0.5 * configuration.attributes.interiorColor.green,
+        	0.5 * configuration.attributes.interiorColor.blue,
+        	1.0);	
+        
+        
     }
 
     return configuration;
