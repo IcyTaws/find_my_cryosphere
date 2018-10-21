@@ -77,7 +77,51 @@ $(function(){
 	    	}
 	    }
 	});
-
+	$('#snow-toggle').tinyToggle({
+	    type: 'toggle',
+	    palette: 'custom', 
+	    size: 'medium',
+	    onChange: function(obj, val){
+	    	if (val) {
+	    		wwd.layers.forEach(function(layer){
+	    			if (layer.displayName == 'snow_Jan') {
+	    				layer.enabled = true;
+	    				wwd.redraw();
+	    			}
+	    		});
+	    	} else {
+	    		wwd.layers.forEach(function(layer){
+	    			if (layer.displayName == 'snow_Jan' || layer.displayName == 'snow_Feb') {
+	    				layer.enabled = false;
+	    				wwd.redraw();
+	    			}
+	    		});
+	    	}
+	    }
+	});
+	$('#month-control').on('change', function(){
+		if ($(this).val() == 'Jan') {
+			wwd.layers.forEach(function(layer){
+				if (layer.displayName == 'snow_Jan') {
+					layer.enabled = false;
+				}
+				if (layer.displayName == 'snow_Feb') {
+					layer.enabled = true;
+				}
+				wwd.redraw();
+			});
+		} else {
+			wwd.layers.forEach(function(layer){
+				if (layer.displayName == 'snow_Jan') {
+					layer.enabled = true;
+				}
+				if (layer.displayName == 'snow_Feb') {
+					layer.enabled = false;
+				}
+				wwd.redraw();
+			});
+		}
+	});
 });
 $(window).on('load', function(){
 	// Create a WorldWindow object for the canvas.
@@ -104,7 +148,6 @@ $(window).on('load', function(){
 	    // relative to the upper left corner of the canvas rather than the upper left corner of the page.
 	    var pickList = wwd.pick(wwd.canvasCoordinates(x, y));
 
-	    console.log(pickList.objects);
 
 	    pickList.objects.forEach(function(o){
 	    	if (o.parentLayer != null && o.parentLayer.displayName =='countries') {
@@ -141,10 +184,15 @@ $(window).on('load', function(){
 	countriesGeoJSON.load(parserCompletionCallback, shapeConfigurationCallback, countries_layer);
 	wwd.addLayer(countries_layer);
 	// SnowCover Layer
-	var snow_layer = new WorldWind.RenderableLayer('Nieve');
-	snow_layer.enabled = true;
-	var snow_layerGeoJSON = new WorldWind.GeoJSONParser('../data/Merged.geojson');
-	snow_layerGeoJSON.load(null, snow_layerConfCallback,snow_layer);
+	var snow_layer = new WorldWind.RenderableLayer('snow_Jan');
+	snow_layer.enabled = false;
+	var snow_layerGeoJSON = new WorldWind.GeoJSONParser('../data/merged.geojson');
+	snow_layerGeoJSON.load(null, snow_layerConfCallback_jan,snow_layer);
+	wwd.addLayer(snow_layer);
+	var snow_layer = new WorldWind.RenderableLayer('snow_Feb');
+	snow_layer.enabled = false;
+	var snow_layerGeoJSON = new WorldWind.GeoJSONParser('../data/merged.geojson');
+	snow_layerGeoJSON.load(null, snow_layerConfCallback_feb,snow_layer);
 	wwd.addLayer(snow_layer);
 });
 function set_current_location () {
@@ -182,10 +230,29 @@ function set_current_location () {
 	}
 }
 
-snow_layerConfCallback = function (geometry,properties){
+snow_layerConfCallback_jan = function (geometry,properties){
 	var configuration = {}
 	configuration.attributes = new WorldWind.ShapeAttributes(null);
 	var mm_snow = properties.resumen_data_Jan
+	configuration.attributes.interiorColor = new WorldWind.Color(
+		1, // Red
+		1, // Green
+		1, // Blue
+		mm_snow/255)
+        
+    // Paint the outline in a darker variant of the interior color.
+	configuration.attributes.outlineColor = new WorldWind.Color(
+    0.5 * configuration.attributes.interiorColor.red,
+    0.5 * configuration.attributes.interiorColor.green,
+    0.5 * configuration.attributes.interiorColor.blue,
+    1.0);
+    return configuration;
+}
+
+snow_layerConfCallback_feb = function (geometry,properties){
+	var configuration = {}
+	configuration.attributes = new WorldWind.ShapeAttributes(null);
+	var mm_snow = properties.resumen_data_Feb
 	configuration.attributes.interiorColor = new WorldWind.Color(
 		1, // Red
 		1, // Green
