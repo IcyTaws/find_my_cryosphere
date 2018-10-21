@@ -7,6 +7,26 @@ $(function(){
 		e.preventDefault();
 		closeNav($(this));
 	});
+	$('.location').on('click', function(e){
+		e.preventDefault();
+		if ($(this).hasClass('navbar-toggled')) {
+			$(this).removeClass('navbar-toggled');
+			wwd.layers.forEach(function(layer){
+				if (layer.displayName == 'placemark') {
+					layer.enabled = false;
+					wwd.redraw();
+				}
+			});
+		} else {
+			$(this).addClass('navbar-toggled');
+			wwd.layers.forEach(function(layer){
+				if (layer.displayName == 'placemark') {
+					layer.enabled = true;
+					wwd.redraw();
+				}
+			});
+		}
+	});
 	$.fn.TinyToggle.palettes['custom'] = {
 	    check: '#22A7F0',
 	    uncheck: '#f39c12'
@@ -23,7 +43,6 @@ $(function(){
 	    				wwd.redraw();
 	    			}
 	    		});
-	    		wwd.redraw();
 	    	} else {
 	    		wwd.layers.forEach(function(layer){
 	    			if (layer.displayName == 'glaciares') {
@@ -46,7 +65,6 @@ $(function(){
 	    				wwd.redraw();
 	    			}
 	    		});
-	    		wwd.redraw();
 	    	} else {
 	    		wwd.layers.forEach(function(layer){
 	    			if (layer.displayName == 'permafrost') {
@@ -57,7 +75,7 @@ $(function(){
 	    	}
 	    }
 	});
-	
+
 });
 $(window).on('load', function(){
 	// Create a WorldWindow object for the canvas.
@@ -69,6 +87,7 @@ $(window).on('load', function(){
 	// wwd.addLayer(new WorldWind.CompassLayer());
 	wwd.addLayer(new WorldWind.CoordinatesDisplayLayer(wwd));
 	wwd.addLayer(new WorldWind.ViewControlsLayer(wwd));
+	set_current_location();
 
 	// GEOJSON TEST
 	var placemarkAttributes = new WorldWind.PlacemarkAttributes(null);
@@ -91,6 +110,40 @@ $(window).on('load', function(){
 	permafrostGeoJSON.load(null, shapeConfigurationCallback, permafrost_layer);
 	wwd.addLayer(permafrost_layer);
 });
+function set_current_location () {
+	if (navigator.geolocation) {
+		navigator.geolocation.getCurrentPosition(function(position) {
+			var pos = {
+				lat: position.coords.latitude,
+				lng: position.coords.longitude
+			};
+			var placemark_layer = new WorldWind.RenderableLayer('placemark');
+			placemark_layer.enabled = false;
+			wwd.addLayer(placemark_layer);
+			var placemarkAttributes = new WorldWind.PlacemarkAttributes(null);
+			placemarkAttributes.imageOffset = new WorldWind.Offset(
+			    WorldWind.OFFSET_FRACTION, 0.3,
+			    WorldWind.OFFSET_FRACTION, 0.0);
+			placemarkAttributes.labelAttributes.color = WorldWind.Color.YELLOW;
+			placemarkAttributes.labelAttributes.offset = new WorldWind.Offset(
+			            WorldWind.OFFSET_FRACTION, 0.5,
+			            WorldWind.OFFSET_FRACTION, 1.0);
+			placemarkAttributes.imageSource = '../img/castshadow-orange.png';
+			var position = new WorldWind.Position(pos.lat, pos.lng, 100.0);
+			var placemark = new WorldWind.Placemark(position, false, placemarkAttributes);
+			placemark.label = "Usted está aquí\n" +
+			    "Lat " + placemark.position.latitude.toPrecision(4).toString() + "\n" +
+			    "Lon " + placemark.position.longitude.toPrecision(5).toString();
+			placemark.alwaysOnTop = true;
+			placemark_layer.addRenderable(placemark);
+		}, function() {
+			handleLocationError(true, infoWindow, map.getCenter());
+		});
+	} else {
+		// Browser doesn't support Geolocation
+		handleLocationError(false, infoWindow, map.getCenter());
+	}
+}
 shapeConfigurationCallback = function (geometry, properties) {
     var configuration = {};
 

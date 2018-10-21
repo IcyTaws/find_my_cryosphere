@@ -51,3 +51,7 @@ body {
 #navbar .navbar-nav>li>a:hover {
 	text-shadow: 0 0 20px #FFF,0 0 20px #FFF;
 }
+.navbar-toggled {
+	color: #f39c12 !important;
+	text-shadow: 0 0 20px #FFF,0 0 20px #FFF;	
+}
