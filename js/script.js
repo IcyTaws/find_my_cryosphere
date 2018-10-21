@@ -170,7 +170,7 @@ $(window).on('load', function(){
 	var glaciars_layer = new WorldWind.RenderableLayer('glaciares');
 	glaciars_layer.enabled = false;
 	var polygonGeoJSON = new WorldWind.GeoJSONParser('../data/ne_glaciated_areas.geojson');
-	polygonGeoJSON.load(null, shapeConfigurationCallback, glaciars_layer);
+	polygonGeoJSON.load(null, glacierCallback, glaciars_layer);
 	wwd.addLayer(glaciars_layer);
 	// Permafrost Layer
 	var permafrost_layer = new WorldWind.RenderableLayer('permafrost');
@@ -268,6 +268,24 @@ snow_layerConfCallback_feb = function (geometry,properties){
     return configuration;
 }
 
+glacierCallback = function (geometry,properties){
+	var configuration = {};
+	configuration.attributes = new WorldWind.ShapeAttributes(null);
+
+        // Fill the polygon with a custom color
+        configuration.attributes.interiorColor = new WorldWind.Color(
+			201/255, 
+			255/255,
+			252/255,
+            0.5);
+        // Paint the outline in a darker variant of the interior color.
+        configuration.attributes.outlineColor = new WorldWind.Color(
+            0.5 * configuration.attributes.interiorColor.red,
+            0.5 * configuration.attributes.interiorColor.green,
+            0.5 * configuration.attributes.interiorColor.blue,
+			1.0);
+	return configuration;
+}
 shapeConfigurationCallback = function (geometry, properties) {
     var configuration = {};
 
